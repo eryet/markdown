@@ -1,0 +1,480 @@
+/* ---------- Book wrapper and furniture ---------- */
+
+.book-wrap {
+  position: relative;
+}
+.book {
+  position: relative;
+}
+
+/* Page-edge stacks: thickness shows how deep into the book you are. */
+.edge {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: 0;
+  background: repeating-linear-gradient(to right, #ece3d1 0 1px, #d6cbb5 1px 2px, #e4dac6 2px 3px);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.18);
+  transition:
+    width 0.45s ease,
+    left 0.45s ease,
+    right 0.45s ease;
+}
+.edge--left {
+  border-radius: 3px 0 0 3px;
+  transform: skewY(-1.2deg);
+  transform-origin: right center;
+}
+.edge--right {
+  border-radius: 0 3px 3px 0;
+  transform: skewY(1.2deg);
+  transform-origin: left center;
+}
+/* ---------- Page shell ---------- */
+
+.page {
+  position: relative;
+  background-color: var(--paper);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #f8f2e6 0%, var(--paper) 50%, var(--paper-2) 100%);
+  color: var(--ink);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Everything laid out in locked page units lives on .page-skin, which is then
+   scaled to the displayed size. StPageFlip only ever touches .page itself. */
+.page-skin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--page-w);
+  height: var(--page-h);
+  transform: scale(var(--scale, 1));
+  transform-origin: 0 0;
+}
+
+/* spine shading: darker toward the gutter */
+.page-skin::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.page-skin[data-side='left']::after {
+  background: linear-gradient(to left, rgba(60, 40, 20, 0.16), rgba(60, 40, 20, 0.02) 10%, transparent 18%);
+}
+.page-skin[data-side='right']::after {
+  background: linear-gradient(to right, rgba(60, 40, 20, 0.16), rgba(60, 40, 20, 0.02) 10%, transparent 18%);
+}
+
+.page-inner {
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  width: var(--inner-w);
+  height: var(--inner-h);
+  overflow: hidden;
+}
+
+.page-head {
+  position: absolute;
+  top: calc(var(--pad) * 0.42);
+  left: var(--pad);
+  right: var(--pad);
+  font-family: 'Literata Variable', Georgia, serif;
+  font-size: calc(var(--fs) * 0.68);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.page-skin[data-side='left'] .page-head {
+  text-align: left;
+}
+.page-skin[data-side='right'] .page-head {
+  text-align: right;
+}
+
+.page-footer {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: calc(var(--pad) * 0.45);
+  height: var(--footer-h);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-family: 'Literata Variable', Georgia, serif;
+  font-size: calc(var(--fs) * 0.8);
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+}
+
+/* ---------- Covers and endpapers ---------- */
+
+.page--cover,
+.page--back {
+  background-color: #2f3a44;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(135deg, #36424d 0%, #2b353f 60%, #242d36 100%);
+  color: #e9dfc7;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.page-skin--cover,
+.page-skin--back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: calc(var(--pad) * 1.2) var(--pad);
+  box-sizing: border-box;
+  font-family: 'Literata Variable', Georgia, serif;
+}
+.page-skin--cover::after,
+.page-skin--back::after {
+  content: none;
+}
+.cover-rule {
+  width: 38%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c9b47a, transparent);
+  margin-bottom: 2.2em;
+}
+.cover-rule--bottom {
+  margin: 2.2em 0 0;
+}
+.cover-title {
+  font-size: calc(var(--fs) * 2.2);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 90%;
+  hyphens: none;
+}
+.cover-subtitle {
+  margin-top: 1em;
+  font-size: calc(var(--fs) * 1.05);
+  font-style: italic;
+  color: #cfc3a6;
+  max-width: 80%;
+  line-height: 1.4;
+}
+.cover-author {
+  margin-top: 2.4em;
+  font-size: calc(var(--fs) * 0.9);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #c9b47a;
+}
+.cover-colophon {
+  font-size: calc(var(--fs) * 0.8);
+  color: #9fa7ae;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+}
+.cover-colophon span {
+  color: #c9b47a;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.8em;
+}
+
+.page--endpaper,
+.page--blank {
+  background-color: var(--paper-2);
+  background-image: linear-gradient(180deg, #f1e9d8 0%, var(--paper-2) 100%);
+}
+.page--endpaper .page-skin::after,
+.page--blank .page-skin::after {
+  opacity: 0.6;
+}
+
+/* ---------- Table of contents ---------- */
+
+.toc-title {
+  font-family: 'Literata Variable', Georgia, serif;
+  font-size: calc(var(--fs) * 1.6);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #1d1813;
+  height: calc(var(--fs) * 3.6);
+  line-height: calc(var(--fs) * 2.4);
+}
+.toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: 'Literata Variable', Georgia, serif;
+  font-size: var(--fs);
+  color: var(--ink);
+}
+.toc-entry {
+  height: 2.1em; /* chunkToc() in book.ts relies on this */
+  display: flex;
+  align-items: center;
+}
+.toc-entry button {
+  all: unset;
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  cursor: pointer;
+  line-height: 1.3;
+  border-radius: 3px;
+}
+.toc-entry button:hover .toc-text,
+.toc-entry button:focus-visible .toc-text {
+  color: var(--accent);
+}
+.toc-entry--l1 {
+  font-weight: 600;
+}
+.toc-entry--l2 {
+  font-size: 0.92em;
+  padding-left: 1.6em;
+  color: #4a4038;
+}
+.toc-text {
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toc-dots {
+  flex: 1 1 auto;
+  min-width: 1.5em;
+  margin: 0 0.4em;
+  border-bottom: 1px dotted rgba(60, 40, 20, 0.45);
+  transform: translateY(-0.3em);
+}
+.toc-num {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+/* ---------- The text flow (shared by probe and pages) ---------- */
+
+.flow {
+  width: var(--inner-w);
+  height: var(--inner-h);
+  column-width: var(--inner-w);
+  column-gap: var(--gap);
+  column-fill: auto;
+  font-family: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  font-size: var(--fs);
+  line-height: 1.55;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+  orphans: 2;
+  widows: 2;
+  color: var(--ink);
+}
+.flow--probe {
+  position: fixed;
+  left: -100000px;
+  top: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.flow > :first-child {
+  margin-top: 0;
+}
+.flow p {
+  margin: 0 0 0.85em;
+}
+.flow h1,
+.flow h2,
+.flow h3,
+.flow h4 {
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  hyphens: none;
+  break-after: avoid;
+  color: #1d1813;
+}
+.flow h1 {
+  font-size: 1.9em;
+  margin: 0.4em 0 0.8em;
+  letter-spacing: -0.01em;
+}
+.flow h2 {
+  font-size: 1.35em;
+  margin: 1.4em 0 0.5em;
+}
+.flow h3 {
+  font-size: 1.1em;
+  margin: 1.2em 0 0.4em;
+}
+.flow h4 {
+  font-size: 1em;
+  margin: 1em 0 0.3em;
+  font-style: italic;
+}
+
+/* ---------- Chapter opener ---------- */
+
+.chapter-opener {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  padding-top: calc(var(--inner-h) * 0.05);
+  margin-bottom: 0.6em;
+  break-after: avoid;
+}
+.chapter-number {
+  font-size: 0.78em;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--chapter-accent, var(--ink-soft));
+}
+.chapter-ornament {
+  font-size: 1.6em;
+  line-height: 1;
+  color: var(--chapter-accent, var(--ink-soft));
+}
+.flow[data-opener] > .chapter-opener + h1,
+.flow[data-opener] > .chapter-opener + h2 {
+  text-align: center;
+  font-size: 1.8em;
+  margin: 0 0 0.9em;
+  line-height: 1.15;
+  color: #1d1813;
+  padding-bottom: 0.45em;
+  position: relative;
+}
+.flow[data-opener] > .chapter-opener + h1::after,
+.flow[data-opener] > .chapter-opener + h2::after {
+  content: '';
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--chapter-accent, #999), transparent);
+}
+.flow[data-opener] > .chapter-opener + h1 + p::first-letter,
+.flow[data-opener] > .chapter-opener + h2 + p::first-letter {
+  float: left;
+  font-size: 3.4em;
+  line-height: 0.82;
+  padding: 0.06em 0.1em 0 0;
+  font-weight: 600;
+  color: var(--chapter-accent, var(--ink));
+}
+
+.flow a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(181, 84, 45, 0.35);
+}
+.flow blockquote {
+  margin: 0.8em 0 1em;
+  padding: 0.1em 0 0.1em 1em;
+  border-left: 2px solid var(--chapter-accent, rgba(60, 40, 20, 0.3));
+  color: #4a4038;
+  font-style: italic;
+}
+.flow ul,
+.flow ol {
+  margin: 0 0 0.85em;
+  padding-left: 1.4em;
+  text-align: left;
+}
+.flow li {
+  margin-bottom: 0.25em;
+}
+.flow hr {
+  border: 0;
+  text-align: center;
+  margin: 1.2em 0;
+}
+.flow hr::after {
+  content: '❦';
+  color: var(--chapter-accent, var(--ink-soft));
+  font-size: 1.1em;
+}
+
+/* Blocks that must not straddle a page break. */
+.flow pre,
+.flow table,
+.flow img,
+.flow figure,
+.flow .katex-display {
+  break-inside: avoid;
+}
+
+.flow img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(var(--inner-h) * 0.7);
+  object-fit: contain;
+  margin: 0.6em auto 1em;
+  border-radius: 2px;
+}
+
+.flow code {
+  font-family: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, Consolas, monospace;
+  font-size: 0.86em;
+}
+.flow :not(pre) > code {
+  background: rgba(60, 40, 20, 0.08);
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+}
+.flow pre {
+  margin: 0.6em 0 1em;
+  padding: 0.7em 0.8em;
+  border-radius: 4px;
+  text-align: left;
+  hyphens: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+  border: 1px solid rgba(60, 40, 20, 0.12);
+  background-color: rgba(255, 252, 245, 0.7) !important;
+}
+.flow pre code {
+  font-size: 0.8em;
+  background: none;
+  padding: 0;
+}
+
+.flow table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.6em 0 1em;
+  font-size: 0.9em;
+  text-align: left;
+  hyphens: none;
+}
+.flow th,
+.flow td {
+  padding: 0.35em 0.5em;
+  border-bottom: 1px solid rgba(60, 40, 20, 0.2);
+  vertical-align: top;
+}
+.flow th {
+  font-weight: 600;
+  border-bottom-width: 2px;
+}
+
+.flow .katex-display {
+  margin: 0.8em 0 1em;
+  overflow: hidden;
+}
+.flow .katex {
+  font-size: 1.05em;
+}
